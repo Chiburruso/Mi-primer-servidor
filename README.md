@@ -28,3 +28,21 @@ Proyecto de aprendizaje personal en 1º de ASIR.
    ```bash
    sudo apt update
    sudo apt upgrade -y
+5. Instalación de Nginx:
+  ```bash
+  sudo apt install nginx -y
+  sudo systemctl enable nginx --now
+  ```
+6. Comprobación de que Nginx escucha en el puerto 80:
+  ```bash
+  sudo ss -tulpn | grep nginx
+  ```
+7. Configuración de reenvío de puertos en VirtualBox:
+  - Host: 127.0.0.1:8080
+  - Guest: 80
+8. Acceso desde el navegador del host:
+http://127.0.0.1:8080
+9. Edición de la página por defecto de Nginx:
+  ```bash
+  sudo nano /var/www/html/index.nginx-debian.html
+  ```
