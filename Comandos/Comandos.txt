@@ -1,0 +1,13 @@
+## Comandos utilizados
+
+```bash
+ip a
+sudo apt update
+sudo apt upgrade -y
+sudo apt install nginx -y
+sudo systemctl enable nginx --now
+sudo systemctl status nginx
+sudo ss -tulpn | grep nginx
+curl http://localhost
+sudo nano /var/www/html/index.nginx-debian.html
+sudo poweroff
