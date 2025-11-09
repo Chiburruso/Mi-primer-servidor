@@ -1,13 +1,397 @@
-## Comandos utilizados
+## 🐧 Comandos básicos de Linux / sistema
+
+```bash
+whoami
+```
+
+* Muestra el **usuario** con el que estás conectado.
+
+```bash
+hostname
+```
+
+* Muestra el **nombre del servidor** (el hostname que pusiste al instalar Ubuntu).
+
+```bash
+uname -a
+```
+
+* Información del **kernel** y del sistema (versión de Linux, arquitectura, etc.).
 
 ```bash
 ip a
+```
+
+* Muestra todas las **interfaces de red** y sus direcciones IP (`lo`, `enp0s3`, etc.).
+
+```bash
+exit
+```
+
+* Cierra la sesión actual (por ejemplo, salir de SSH o de la shell).
+
+---
+
+## 📦 Gestión de paquetes (APT)
+
+```bash
 sudo apt update
+```
+
+* Actualiza la **lista de paquetes disponibles** desde los repositorios.
+
+```bash
 sudo apt upgrade -y
+```
+
+* Instala todas las **actualizaciones** de paquetes que ya tienes en el sistema.
+
+```bash
 sudo apt install nginx -y
-sudo systemctl enable nginx --now
+```
+
+* Instala el servidor web **Nginx**.
+
+```bash
+sudo apt install docker.io -y
+```
+
+* Instala **Docker** desde los repositorios de Ubuntu.
+
+```bash
+sudo apt install openssh-server -y
+```
+
+* Instala el **servidor SSH** para poder conectarte remotamente a la VM.
+
+---
+
+## 🔧 Servicios (systemd / systemctl)
+
+```bash
 sudo systemctl status nginx
+```
+
+* Muestra el **estado del servicio Nginx** (si está `active (running)` o no, logs recientes, etc.).
+
+```bash
+sudo systemctl enable nginx --now
+```
+
+* Hace que Nginx **se inicie al arrancar** el sistema y lo **arranca ya**.
+
+```bash
+sudo systemctl start nginx
+```
+
+* Arranca Nginx **solo ahora** (sin tocar el arranque automático).
+
+```bash
+sudo systemctl status ssh
+```
+
+* Muestra el estado del **servicio SSH** (`sshd`).
+
+```bash
+sudo systemctl enable ssh --now
+```
+
+* Activa SSH al arranque y lo inicia inmediatamente.
+
+```bash
+sudo systemctl status docker
+```
+
+* Muestra el estado del servicio **Docker**.
+
+```bash
+sudo systemctl enable docker --now
+```
+
+* Activa Docker al arranque y lo inicia ahora.
+
+---
+
+## 🌐 Puertos y conexiones
+
+```bash
 sudo ss -tulpn | grep nginx
+```
+
+* Lista todos los puertos abiertos y filtra las líneas donde aparece **nginx** (por ejemplo, `*:80`).
+
+```bash
+sudo ss -tulpn | grep ssh
+```
+
+* Muestra las líneas de `ss` relacionadas con **sshd** (puerto 22).
+
+```bash
+sudo ss -tulpn | grep ':22'
+```
+
+* Busca específicamente conexiones en el **puerto 22**.
+
+---
+
+## 🌍 Comprobar servidores web
+
+```bash
 curl http://localhost
+```
+
+* Hace una petición HTTP al **puerto 80** del propio servidor (`localhost`).
+
+```bash
+curl http://localhost:8081
+```
+
+* Hace una petición HTTP al **puerto 8081** (Nginx en Docker dentro de la VM).
+
+```bash
+curl http://127.0.0.1:8081
+```
+
+* Igual que arriba, usando la IP de loopback (127.0.0.1) en lugar de `localhost`.
+
+---
+
+## 📝 Archivos, directorios y editor
+
+```bash
 sudo nano /var/www/html/index.nginx-debian.html
+```
+
+* Abre con `nano` el archivo HTML por defecto de Nginx para editar la página que se muestra en `:80`.
+
+```bash
+mkdir -p ~/miweb-nginx
+```
+
+* Crea el directorio `miweb-nginx` en tu **home** (y crea las carpetas intermedias si hiciera falta).
+
+```bash
+nano ~/miweb-nginx/index.html
+```
+
+* Crea/edita un archivo `index.html` personalizado para tu Nginx en Docker.
+
+---
+
+## 🔌 Apagar / reiniciar
+
+```bash
 sudo poweroff
+```
+
+* Apaga la máquina de forma segura.
+
+```bash
+sudo reboot
+```
+
+* Reinicia la máquina (no lo hemos usado tanto, pero lo hemos mencionado).
+
+---
+
+## 🐳 Docker – comandos básicos
+
+````bash
+docker --version
+``]
+- Muestra la **versión de Docker** instalada.
+
+```bash
+sudo docker ps
+````
+
+* Lista los **contenedores en ejecución**.
+
+```bash
+sudo docker ps -a
+```
+
+* Lista **todos los contenedores**, incluyendo los que están parados (`Exited`).
+
+```bash
+sudo docker run --rm alpine echo "Hola desde un contenedor Docker"
+```
+
+* Descarga la imagen `alpine`, crea un contenedor, ejecuta `echo` y lo borra al terminar.
+
+```bash
+sudo docker run -d --name docker-nginx -p 8081:80 nginx
+```
+
+* Crea un contenedor:
+
+  * en segundo plano (`-d`)
+  * llamado `docker-nginx`
+  * mapeando **VM 8081 → contenedor 80**
+  * usando la imagen oficial `nginx`.
+
+```bash
+sudo docker run -d --name docker-nginx \
+  --restart unless-stopped \
+  -p 8081:80 nginx
+```
+
+* Igual que antes, pero con **reinicio automático** cuando se reinicie la VM (`--restart unless-stopped`).
+
+```bash
+sudo docker run -d \
+  --name docker-nginx \
+  --restart unless-stopped \
+  -p 8081:80 \
+  -v ~/miweb-nginx/index.html:/usr/share/nginx/html/index.html:ro \
+  nginx
+```
+
+* Ejecuta Nginx en Docker sirviendo **tu propio `index.html`** desde la VM como volumen (`-v`).
+
+```bash
+sudo docker stop docker-nginx
+```
+
+* **Para** el contenedor `docker-nginx` (pero no lo borra).
+
+```bash
+sudo docker rm docker-nginx
+```
+
+* **Elimina** el contenedor `docker-nginx` (tiene que estar parado).
+
+```bash
+sudo docker rm -f docker-nginx
+```
+
+* Fuerza la eliminación del contenedor aunque esté en ejecución.
+
+```bash
+sudo docker start docker-nginx
+```
+
+* Arranca de nuevo el contenedor `docker-nginx` si estaba parado (`Exited`).
+
+---
+
+## 👥 Usuarios y permisos (Docker / grupos)
+
+```bash
+sudo usermod -aG docker chiburruso
+```
+
+* Añade el usuario `chiburruso` al grupo **docker** para poder usar Docker sin `sudo`.
+
+```bash
+groups
+```
+
+* Muestra los **grupos** a los que pertenece tu usuario (sirve para comprobar que estás en `docker`, `sudo`, etc.).
+
+---
+
+## 🖥️ SSH – conexión remota
+
+> Estos los ejecutas normalmente **desde Windows**, no dentro de la VM.
+
+```bash
+ssh chiburruso@127.0.0.1 -p 2222
+```
+
+* Abre una conexión SSH desde tu PC **al puerto 2222 del host**, que está reenviado al **22 de la VM**.
+
+---
+
+## 🔧 Terminal / errores de eco
+
+```bash
+stty sane
+```
+
+* Restaura la configuración “normal” de la terminal (útil si la salida se ha quedado rara).
+
+```bash
+stty echo
+```
+
+* Vuelve a activar que se muestren las teclas que escribes (como cuando la terminal se comporta como al escribir una contraseña).
+
+```bash
+Ctrl + C
+```
+
+* Atajo de teclado para **interrumpir** el comando actual (muy útil cuando te quedas “atrapado” en algo como `grep` sin argumentos o un comando esperando entrada).
+
+---
+
+## 🧬 Git y GitHub (en Windows)
+
+```bash
+git --version
+```
+
+* Comprueba que Git está instalado y muestra la versión.
+
+```bash
+git clone https://github.com/Chiburruso/Mi-primer-servidor.git
+```
+
+* Clona tu repositorio de GitHub en una carpeta local.
+
+```bash
+cd "C:\Users\angel\Desktop\Conocimiento autodidacta\Mi-primer-servidor"
+```
+
+* Entra en la carpeta del repositorio (muy importante para que `git` funcione ahí).
+
+```bash
+git status
+```
+
+* Muestra el estado del repo: qué archivos han cambiado, cuáles están listos para commit, etc.
+
+```bash
+git add .
+```
+
+* Añade **todos los cambios** (nuevos, modificados, borrados) al “staging area” para el próximo commit.
+
+```bash
+git commit -m "Mensaje del commit"
+```
+
+* Crea una nueva “versión” con los cambios añadidos y un mensaje descriptivo.
+
+```bash
+git push
+```
+
+* Sube tus commits locales al repositorio remoto (GitHub), normalmente a la rama `main`.
+
+```bash
+git remote -v
+```
+
+* Muestra las URLs asociadas al remoto (`origin`), para ver a qué repo de GitHub está conectado.
+
+```bash
+git branch
+```
+
+* Lista las ramas locales y marca con `*` la rama actual (por ejemplo `main`).
+
+```bash
+git config --global user.name "TuNombre"
+git config --global user.email "tu@email"
+```
+
+* Configura tu **nombre** y **email** para los commits en ese PC (solo hay que hacerlo una vez).
+
+---
+
+Si quieres, el siguiente paso puede ser:
+
+* que copies esta lista en un archivo nuevo dentro de tu repo, por ejemplo
+  `apuntes/00_resumen_comandos_basicos.md`,
+* y así lo tienes siempre de chuleta mientras sigues aprendiendo 🚀
