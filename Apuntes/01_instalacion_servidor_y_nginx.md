@@ -11,7 +11,7 @@ Proyecto de aprendizaje personal en 1º de ASIR.
 
 ## Entorno
 
-- **Host**: Windows 10/11
+- **Host**: Windows 11
 - **Virtualización**: VirtualBox
 - **VM**:
   - Ubuntu Server 24.04 LTS
